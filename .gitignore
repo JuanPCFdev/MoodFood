@@ -1,3 +1,18 @@
+<<<<<<< HEAD
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+
+# Android
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+=======
 # Miscellaneous
 *.class
 *.lock
@@ -49,12 +64,24 @@ unlinked_spec.ds
 # Android related
 **/android/**/gradle-wrapper.jar
 .gradle/
+>>>>>>> ed5f233d9f7a4472b1b17dba42d9ffe9a5ba9aea
 **/android/captures/
 **/android/gradlew
 **/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 **/android/key.properties
+<<<<<<< HEAD
+
+# iOS
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-items
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/UserInterfaceState.xcuserstate
+**/ios/.generated/
+=======
 *.jks
 
 # iOS/XCode related
@@ -75,17 +102,44 @@ unlinked_spec.ds
 **/ios/**/xcuserdata
 **/ios/.generated/
 **/ios/Flutter/.last_build_id
+>>>>>>> ed5f233d9f7a4472b1b17dba42d9ffe9a5ba9aea
 **/ios/Flutter/App.framework
 **/ios/Flutter/Flutter.framework
 **/ios/Flutter/Flutter.podspec
 **/ios/Flutter/Generated.xcconfig
+<<<<<<< HEAD
+**/ios/Flutter/ephemeral/
+=======
 **/ios/Flutter/ephemeral
+>>>>>>> ed5f233d9f7a4472b1b17dba42d9ffe9a5ba9aea
 **/ios/Flutter/app.flx
 **/ios/Flutter/app.zip
 **/ios/Flutter/flutter_assets/
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
+<<<<<<< HEAD
+**/ios/Podfile.lock
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# SECRETS
+.env
+*.env
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Misc
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+coverage/
+=======
 
 # macOS
 **/Flutter/ephemeral/
@@ -117,3 +171,4 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+>>>>>>> ed5f233d9f7a4472b1b17dba42d9ffe9a5ba9aea
