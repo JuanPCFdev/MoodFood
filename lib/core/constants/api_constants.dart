@@ -9,7 +9,7 @@ class ApiConstants {
   static const String model = 'google/gemma-3-4b-it:free';
 
   // Modelo de visión para el flujo de foto
-  static const String visionModel = 'mistralai/mistral-small-3.1-24b-instruct:free';
+  static const String visionModel = 'qwen/qwen3-vl-235b-a22b-thinking';
 
   static const String chatEndpoint = '$baseUrl/chat/completions';
 }

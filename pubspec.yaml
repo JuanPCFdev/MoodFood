@@ -23,7 +23,7 @@ dependencies:
   # Cámara e imagen
   image_picker: ^1.1.2
   camera: ^0.11.0
-  flutter_image_compress: ^2.3.0   # ← agregar esta línea
+  image: ^4.2.0
 
   # Utilidades
   flutter_animate: ^4.5.0
