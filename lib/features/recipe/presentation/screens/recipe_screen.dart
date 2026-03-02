@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:moodfood_ai/core/constants/app_colors.dart';
 import '../../../../core/widgets/app_chip.dart';
 import '../../../../core/widgets/section_title.dart';
 import '../../domain/entities/recipe_entity.dart';
@@ -22,9 +23,8 @@ class RecipeScreen extends ConsumerWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // AppBar con imagen del plato
           SliverAppBar(
-            expandedHeight: 280,
+            expandedHeight: 140,
             pinned: true,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -37,23 +37,22 @@ class RecipeScreen extends ConsumerWidget {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  overflow: TextOverflow.ellipsis,
                   shadows: [Shadow(blurRadius: 6, color: Colors.black87)],
                 ),
               ),
               background: GeneratedDishImage(imagePrompt: recipe.imagePrompt),
             ),
           ),
-
           SliverPadding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Info chips
                 Row(
                   children: [
-                    AppChip(label: recipe.estimatedTime, leadingIcon: '⏱️'),
+                    AppChip(label: recipe.estimatedTime),
                     const SizedBox(width: 8),
-                    AppChip(label: recipe.difficulty, leadingIcon: '📊'),
+                    AppChip(label: recipe.difficulty),
                   ],
                 ).animate().fadeIn(duration: 400.ms),
 
@@ -64,45 +63,47 @@ class RecipeScreen extends ConsumerWidget {
                   recipe.description,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey[700],
-                    height: 1.5,
+                    color: Colors.grey[800],
+                    height: 1,
                   ),
                 ).animate().fadeIn(delay: 200.ms),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-                // Ingredientes
-                const SectionTitle('🥬 Ingredientes'),
-                const SizedBox(height: 12),
+                const SectionTitle('Ingredientes'),
+
+                const SizedBox(height: 16),
+
                 ...recipe.ingredients.asMap().entries.map(
                       (e) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Icon(Icons.check_circle,
-                                color: Colors.green, size: 18),
+                            const Icon(Icons.circle,
+                                color: Colors.black, size: 10),
                             const SizedBox(width: 8),
                             Expanded(child: Text(e.value)),
                           ],
                         ),
-                      ).animate().fadeIn(delay: Duration(milliseconds: 100 * e.key)),
+                      )
+                          .animate()
+                          .fadeIn(delay: Duration(milliseconds: 200 * e.key)),
                     ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-                // Pasos
-                const SectionTitle('👨‍🍳 Preparación'),
-                const SizedBox(height: 12),
+                const SectionTitle('Preparación'),
+
+                const SizedBox(height: 16),
                 ...recipe.steps.map(
                   (step) => _StepCard(step: step)
                       .animate()
                       .fadeIn(
-                        delay: Duration(milliseconds: 150 * step.stepNumber),
+                        delay: Duration(milliseconds: 200 * step.stepNumber),
                       )
                       .slideX(begin: 0.1),
                 ),
-
-                const SizedBox(height: 40),
               ]),
             ),
           ),
@@ -114,21 +115,22 @@ class RecipeScreen extends ConsumerWidget {
 
 class _StepCard extends StatelessWidget {
   final RecipeStep step;
+
   const _StepCard({required this.step});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -139,31 +141,35 @@ class _StepCard extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: const BoxDecoration(
-              color: Color(0xFFFF6B35),
+              color: AppColors.primary,
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 '${step.stepNumber}',
                 style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(step.instruction, style: const TextStyle(height: 1.4)),
+                Text(step.instruction, style: const TextStyle(height: 1, fontWeight: FontWeight.bold, fontSize: 16)),
                 if (step.tip != null) ...[
                   const SizedBox(height: 8),
                   Text(
-                    '💡 ${step.tip}',
+                    '${step.tip}',
                     style: TextStyle(
                         color: Colors.amber[700],
-                        fontSize: 13,
-                        fontStyle: FontStyle.italic),
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ]
               ],

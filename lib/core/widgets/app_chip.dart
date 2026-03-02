@@ -18,38 +18,34 @@ class AppChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.25),
+          color: AppColors.primary,
           width: 1,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (leadingIcon != null) ...[
-            Text(leadingIcon!, style: const TextStyle(fontSize: 13)),
-            const SizedBox(width: 4),
-          ],
           Text(
             label,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.primary,
             ),
           ),
           if (onRemove != null) ...[
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: onRemove,
-              child: Icon(
+              child: const Icon(
                 Icons.close,
-                size: 14,
-                color: AppColors.primary.withValues(alpha: 0.7),
+                size: 18,
+                color: AppColors.primary,
               ),
             ),
           ],

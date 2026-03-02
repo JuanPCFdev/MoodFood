@@ -45,12 +45,11 @@ class _IngredientInputCardState extends State<IngredientInputCard> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.07),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            blurRadius: 16
           ),
         ],
       ),
@@ -60,12 +59,10 @@ class _IngredientInputCardState extends State<IngredientInputCard> {
           // Título
           Row(
             children: [
-              const Text('🥗', style: TextStyle(fontSize: 20)),
-              const SizedBox(width: 8),
               const Text(
-                'Mis ingredientes',
+                'Ingredientes',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
@@ -83,7 +80,7 @@ class _IngredientInputCardState extends State<IngredientInputCard> {
             ],
           ),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 8),
 
           // TextField
           Row(
@@ -95,36 +92,39 @@ class _IngredientInputCardState extends State<IngredientInputCard> {
                   textCapitalization: TextCapitalization.sentences,
                   onSubmitted: (_) => _submit(),
                   decoration: InputDecoration(
-                    hintText: 'Ej: pollo, tomate, ajo...',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    hintText: 'Ej: Pollo, Tomate, Ajo...',
+                    hintStyle: TextStyle(color: Colors.grey[500]),
                     filled: true,
                     fillColor: AppColors.background,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
+                      horizontal: 8,
                       vertical: 12,
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: AppColors.secondary,
+                        width: 1
+                      )
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(
                         color: AppColors.primary,
-                        width: 1.5,
+                        width: 2,
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               _AddButton(onTap: _submit),
             ],
           ),
 
           // Chips de ingredientes
           if (widget.ingredients.isNotEmpty) ...[
-            const SizedBox(height: 14),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -134,17 +134,17 @@ class _IngredientInputCardState extends State<IngredientInputCard> {
                   onRemove: () => widget.onRemove(entry.key),
                 )
                     .animate()
-                    .fadeIn(duration: 250.ms)
+                    .fadeIn(duration: 200.ms)
                     .scale(begin: const Offset(0.8, 0.8));
               }).toList(),
             ),
           ] else ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Center(
               child: Text(
-                'Agrega ingredientes para comenzar 👆',
+                'Aun no has añadido ingredientes.',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: Colors.grey[400],
                   fontStyle: FontStyle.italic,
                 ),
@@ -167,25 +167,14 @@ class _AddButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 200),
         width: 46,
         height: 46,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.primary, AppColors.secondary],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.35),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: const Icon(Icons.add, color: Colors.white, size: 24),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
     );
   }

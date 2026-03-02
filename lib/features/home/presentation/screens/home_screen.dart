@@ -1,9 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import '../../../../core/constants/app_colors.dart';
 import '../../../recipe/presentation/providers/recipe_provider.dart';
 import '../../providers/ingredient_provider.dart';
@@ -19,38 +18,39 @@ class HomeScreen extends ConsumerWidget {
 
     // Navegar automáticamente cuando la receta esté lista
     ref.listen(recipeProvider, (prev, next) {
-  if (next is RecipeSuccess) {
-    context.go('/recipe');
-  }
-  if (next is RecipeError) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Text('😅', style: TextStyle(fontSize: 20)),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                next.message,
-                style: const TextStyle(fontSize: 14, height: 1.4),
-              ),
+      if (next is RecipeSuccess) {
+        context.go('/recipe');
+      }
+      if (next is RecipeError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Text('😅', style: TextStyle(fontSize: 20)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    next.message,
+                    style: const TextStyle(fontSize: 14, height: 1.4),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF2D3436),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 4),
-        action: SnackBarAction(
-          label: 'Reintentar',
-          textColor: AppColors.primary,
-          onPressed: () => ref.read(recipeProvider.notifier).reset(),
-        ),
-      ),
-    );
-  }
-});
+            backgroundColor: const Color(0xFF2D3436),
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'Reintentar',
+              textColor: AppColors.primary,
+              onPressed: () => ref.read(recipeProvider.notifier).reset(),
+            ),
+          ),
+        );
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -60,15 +60,14 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
-              const SizedBox(height: 20),
               Text(
-                '🍽️ MoodFood',
+                'MoodFood',
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-              ).animate().fadeIn(duration: 600.ms).slideX(begin: -0.2),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                    fontSize: 36
+                ),
+              ).animate().fadeIn(duration: 200.ms).slideX(begin: -0.3),
 
               Text(
                 '¿Qué hay en tu nevera?',
@@ -77,7 +76,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
               ).animate().fadeIn(delay: 200.ms),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
 
               // Input de ingredientes
               IngredientInputCard(
@@ -88,9 +87,9 @@ class HomeScreen extends ConsumerWidget {
                 onRemove: (index) {
                   ref.read(ingredientProvider.notifier).remove(index);
                 },
-              ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2),
+              ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Botón de cámara
               _CameraButton(
@@ -98,14 +97,14 @@ class HomeScreen extends ConsumerWidget {
                 onImageSelected: (file) {
                   ref.read(recipeProvider.notifier).generateFromImage(file);
                 },
-              ).animate().fadeIn(delay: 500.ms),
+              ).animate().fadeIn(delay: 200.ms).slideX(begin:0.3),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Botón principal
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 50,
                 child: ElevatedButton(
                   onPressed: recipeState is RecipeLoading || ingredients.isEmpty
                       ? null
@@ -129,8 +128,10 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ),
                 ),
-              ).animate().fadeIn(delay: 600.ms).scale(begin: const Offset(0.9, 0.9)),
-
+              )
+                  .animate()
+                  .fadeIn(delay: 200.ms)
+                  .scale(begin: const Offset(0.9, 0.9)),
             ],
           ),
         ),
@@ -142,6 +143,7 @@ class HomeScreen extends ConsumerWidget {
 class _CameraButton extends StatelessWidget {
   final Function(File) onImageSelected;
   final bool isLoading;
+
   const _CameraButton({required this.onImageSelected, required this.isLoading});
 
   @override
@@ -150,23 +152,17 @@ class _CameraButton extends StatelessWidget {
       onPressed: isLoading
           ? null
           : () async {
-              final picker = ImagePicker();
-              final pickedFile = await picker.pickImage(
-                source: ImageSource.camera,
-                imageQuality: 70,
-                maxWidth: 1024,
-                maxHeight: 1024,
-              );
-              if (pickedFile != null) {
-                onImageSelected(File(pickedFile.path));
-              }
+              // Navega a la cámara in-app — sin cambio de actividad Android,
+              // sin riesgo de FlutterSurfaceView destruida al regresar.
+              final file = await context.push<File?>('/camera');
+              if (file != null) onImageSelected(file);
             },
       icon: const Icon(Icons.camera_alt),
-      label: const Text('Fotografiar mi nevera'),
+      label: const Text('Generar con Imagen'),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );

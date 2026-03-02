@@ -10,37 +10,32 @@ class GeneratedDishImage extends StatelessWidget {
 
   const GeneratedDishImage({super.key, required this.imagePrompt});
 
-  /// Construye la URL de Pollinations.ai con el prompt encodado
   String get _imageUrl {
-    final encoded = Uri.encodeComponent(imagePrompt);
-    return 'https://image.pollinations.ai/prompt/$encoded?width=800&height=600&nologo=true';
+    return 'https://enmicasa.com/wp-content/uploads/2022/05/22-ingredientes-de-chef.jpg';
   }
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(24),
       child: CachedNetworkImage(
         imageUrl: _imageUrl,
         width: double.infinity,
-        height: 260,
+        height: 140,
         fit: BoxFit.cover,
-        // Shimmer mientras carga
-        placeholder: (context, url) => const ShimmerBox(height: 260),
-        // Si falla, fallback elegante
+        placeholder: (context, url) => const ShimmerBox(height: 240),
         errorWidget: (context, url, error) => _ErrorFallback(name: imagePrompt),
         imageBuilder: (context, imageProvider) {
           return Stack(
             fit: StackFit.expand,
             children: [
               Image(image: imageProvider, fit: BoxFit.cover),
-              // Overlay degradado inferior para que el título se lea bien
               Positioned(
                 bottom: 0,
                 left: 0,
                 right: 0,
                 child: Container(
-                  height: 80,
+                  height: 60,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.bottomCenter,
@@ -53,19 +48,13 @@ class GeneratedDishImage extends StatelessWidget {
                   ),
                 ),
               ),
-              // Badge "IA Generada"
-              Positioned(
-                top: 12,
-                right: 12,
-                child: _AIBadge(),
-              ),
             ],
           );
         },
       ),
     )
         .animate()
-        .fadeIn(duration: 600.ms)
+        .fadeIn(duration: 200.ms)
         .scale(begin: const Offset(0.95, 0.95));
   }
 }
@@ -79,7 +68,7 @@ class _ErrorFallback extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 260,
+      height: 140,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -90,61 +79,11 @@ class _ErrorFallback extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: Column(
+      child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('🍽️', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: 8),
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text('🍽️', style: TextStyle(fontSize: 70))
         ],
-      ),
-    );
-  }
-}
-
-// ── Badge "✨ IA Generada"
-class _AIBadge extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.25),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.4),
-              width: 1,
-            ),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('✨', style: TextStyle(fontSize: 12)),
-              SizedBox(width: 4),
-              Text(
-                'IA Generada',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.3,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
