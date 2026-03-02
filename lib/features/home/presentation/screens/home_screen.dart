@@ -6,25 +6,51 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../../core/constants/app_colors.dart';
 import '../../../recipe/presentation/providers/recipe_provider.dart';
+import '../../providers/ingredient_provider.dart';
 import '../widgets/ingredient_input_card.dart';
-
-// Provider local para la lista de ingredientes
-final ingredientsListProvider = StateProvider<List<String>>((ref) => []);
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ingredients = ref.watch(ingredientsListProvider);
+    final ingredients = ref.watch(ingredientProvider);
     final recipeState = ref.watch(recipeProvider);
 
     // Navegar automáticamente cuando la receta esté lista
     ref.listen(recipeProvider, (prev, next) {
-      if (next is RecipeSuccess) {
-        context.go('/recipe', extra: next.recipe);
-      }
-    });
+  if (next is RecipeSuccess) {
+    context.go('/recipe');
+  }
+  if (next is RecipeError) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Text('😅', style: TextStyle(fontSize: 20)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                next.message,
+                style: const TextStyle(fontSize: 14, height: 1.4),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF2D3436),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'Reintentar',
+          textColor: AppColors.primary,
+          onPressed: () => ref.read(recipeProvider.notifier).reset(),
+        ),
+      ),
+    );
+  }
+});
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -57,14 +83,10 @@ class HomeScreen extends ConsumerWidget {
               IngredientInputCard(
                 ingredients: ingredients,
                 onAdd: (ingredient) {
-                  ref.read(ingredientsListProvider.notifier).update(
-                        (list) => [...list, ingredient],
-                      );
+                  ref.read(ingredientProvider.notifier).add(ingredient);
                 },
                 onRemove: (index) {
-                  ref.read(ingredientsListProvider.notifier).update(
-                        (list) => [...list]..removeAt(index),
-                      );
+                  ref.read(ingredientProvider.notifier).remove(index);
                 },
               ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2),
 
@@ -72,6 +94,7 @@ class HomeScreen extends ConsumerWidget {
 
               // Botón de cámara
               _CameraButton(
+                isLoading: recipeState is RecipeLoading,
                 onImageSelected: (file) {
                   ref.read(recipeProvider.notifier).generateFromImage(file);
                 },
@@ -108,15 +131,6 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ).animate().fadeIn(delay: 600.ms).scale(begin: const Offset(0.9, 0.9)),
 
-              // Error state
-              if (recipeState is RecipeError)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Text(
-                    '❌ ${recipeState.message}',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
             ],
           ),
         ),
@@ -127,21 +141,26 @@ class HomeScreen extends ConsumerWidget {
 
 class _CameraButton extends StatelessWidget {
   final Function(File) onImageSelected;
-  const _CameraButton({required this.onImageSelected});
+  final bool isLoading;
+  const _CameraButton({required this.onImageSelected, required this.isLoading});
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
-      onPressed: () async {
-        final picker = ImagePicker();
-        final pickedFile = await picker.pickImage(
-          source: ImageSource.camera,
-          imageQuality: 80,
-        );
-        if (pickedFile != null) {
-          onImageSelected(File(pickedFile.path));
-        }
-      },
+      onPressed: isLoading
+          ? null
+          : () async {
+              final picker = ImagePicker();
+              final pickedFile = await picker.pickImage(
+                source: ImageSource.camera,
+                imageQuality: 70,
+                maxWidth: 1024,
+                maxHeight: 1024,
+              );
+              if (pickedFile != null) {
+                onImageSelected(File(pickedFile.path));
+              }
+            },
       icon: const Icon(Icons.camera_alt),
       label: const Text('Fotografiar mi nevera'),
       style: OutlinedButton.styleFrom(
