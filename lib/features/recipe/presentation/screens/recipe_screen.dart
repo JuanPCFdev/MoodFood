@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/widgets/app_chip.dart';
+import '../../../../core/widgets/section_title.dart';
 import '../../domain/entities/recipe_entity.dart';
+import '../providers/recipe_provider.dart';
+import '../widgets/generated_dish_image.dart';
 
-class RecipeScreen extends StatelessWidget {
-  final RecipeEntity recipe;
-  const RecipeScreen({super.key, required this.recipe});
+class RecipeScreen extends ConsumerWidget {
+  const RecipeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(recipeProvider);
+
+    if (state is! RecipeSuccess) return const SizedBox.shrink();
+
+    final recipe = state.recipe;
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -26,21 +36,11 @@ class RecipeScreen extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
+                  fontSize: 16,
+                  shadows: [Shadow(blurRadius: 6, color: Colors.black87)],
                 ),
               ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFFFF6B35), Color(0xFFFF8E53)],
-                  ),
-                ),
-                child: const Center(
-                  child: Text('🍽️', style: TextStyle(fontSize: 100)),
-                ),
-              ),
+              background: GeneratedDishImage(imagePrompt: recipe.imagePrompt),
             ),
           ),
 
@@ -51,9 +51,9 @@ class RecipeScreen extends StatelessWidget {
                 // Info chips
                 Row(
                   children: [
-                    _InfoChip(icon: '⏱️', label: recipe.estimatedTime),
+                    AppChip(label: recipe.estimatedTime, leadingIcon: '⏱️'),
                     const SizedBox(width: 8),
-                    _InfoChip(icon: '📊', label: recipe.difficulty),
+                    AppChip(label: recipe.difficulty, leadingIcon: '📊'),
                   ],
                 ).animate().fadeIn(duration: 400.ms),
 
@@ -72,10 +72,7 @@ class RecipeScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Ingredientes
-                const Text(
-                  '🥬 Ingredientes',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                const SectionTitle('🥬 Ingredientes'),
                 const SizedBox(height: 12),
                 ...recipe.ingredients.asMap().entries.map(
                       (e) => Padding(
@@ -94,10 +91,7 @@ class RecipeScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Pasos
-                const Text(
-                  '👨‍🍳 Preparación',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                const SectionTitle('👨‍🍳 Preparación'),
                 const SizedBox(height: 12),
                 ...recipe.steps.map(
                   (step) => _StepCard(step: step)
@@ -118,25 +112,6 @@ class RecipeScreen extends StatelessWidget {
   }
 }
 
-class _InfoChip extends StatelessWidget {
-  final String icon;
-  final String label;
-  const _InfoChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFF6B35).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text('$icon $label',
-          style: const TextStyle(fontWeight: FontWeight.w600)),
-    );
-  }
-}
-
 class _StepCard extends StatelessWidget {
   final RecipeStep step;
   const _StepCard({required this.step});
@@ -151,7 +126,7 @@ class _StepCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/api_constants.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/utils/image_utils.dart';
 import '../models/recipe_model.dart';
@@ -15,7 +17,6 @@ class GeminiDatasource {
 
   GeminiDatasource(this._dioClient);
 
-  // Prompt maestro que le dice a Gemini exactamente qué formato queremos
   static const String _systemPrompt = '''
 Eres un chef profesional. El usuario te dará una lista de ingredientes.
 Genera una receta creativa y deliciosa en formato JSON estricto.
@@ -35,76 +36,96 @@ RESPONDE SOLO con este JSON, sin markdown, sin explicaciones extra:
 }
 ''';
 
+  Map<String, String> get _authHeader => {
+        'Authorization': 'Bearer ${ApiConstants.openRouterApiKey}',
+      };
+
   Future<RecipeModel> generateFromIngredients(List<String> ingredients) async {
-    final ingredientsList = ingredients.join(', ');
-    
-    final body = {
-      'contents': [
-        {
-          'parts': [
-            {'text': '$_systemPrompt\n\nIngredientes disponibles: $ingredientsList'}
-          ]
-        }
-      ],
-      'generationConfig': {
+    try {
+      final body = {
+        'model': ApiConstants.model,
+        'messages': [
+          {
+            'role': 'user',
+            'content': '$_systemPrompt\n\nIngredientes disponibles: ${ingredients.join(', ')}',
+          },
+        ],
         'temperature': 0.7,
-        'maxOutputTokens': 2048,
-      }
-    };
+        'max_tokens': 2048,
+      };
 
-    final response = await _dioClient.post(
-      ApiConstants.generateContentUrl,
-      data: body,
-    );
+      final response = await _dioClient.post(
+        ApiConstants.chatEndpoint,
+        data: body,
+        headers: _authHeader,
+      );
 
-    return _parseResponse(response.data);
+      return _parseResponse(response.data);
+    } on AppFailure {
+      rethrow;
+    } on DioException catch (e) {
+      throw UnknownFailure(e.message ?? '');
+    } catch (e) {
+      throw const ParseFailure();
+    }
   }
 
   Future<RecipeModel> generateFromImage(File image) async {
-    final base64Image = await ImageUtils.fileToBase64(image);
-    final mimeType = ImageUtils.getMimeType(image.path);
+    try {
+      final base64Image = await ImageUtils.fileToBase64(image);
+      final mimeType = ImageUtils.getMimeType(image.path);
 
-    final body = {
-      'contents': [
-        {
-          'parts': [
-            {
-              'inline_data': {
-                'mime_type': mimeType,
-                'data': base64Image,
-              }
-            },
-            {
-              'text': '$_systemPrompt\n\nAnaliza los ingredientes en esta imagen de nevera/despensa y genera una receta.'
-            }
-          ]
-        }
-      ],
-      'generationConfig': {
+      final body = {
+        'model': ApiConstants.visionModel,
+        'messages': [
+          {
+            'role': 'user',
+            'content': [
+              {
+                'type': 'image_url',
+                'image_url': {'url': 'data:$mimeType;base64,$base64Image'},
+              },
+              {
+                'type': 'text',
+                'text': '$_systemPrompt\n\nAnaliza los ingredientes visibles en esta imagen y genera una receta.',
+              },
+            ],
+          },
+        ],
         'temperature': 0.7,
-        'maxOutputTokens': 2048,
-      }
-    };
+        'max_tokens': 2048,
+      };
 
-    final response = await _dioClient.post(
-      ApiConstants.generateContentUrl,
-      data: body,
-    );
+      final response = await _dioClient.post(
+        ApiConstants.chatEndpoint,
+        data: body,
+        headers: _authHeader,
+      );
 
-    return _parseResponse(response.data);
+      return _parseResponse(response.data);
+    } on AppFailure {
+      rethrow;
+    } on DioException catch (e) {
+      throw UnknownFailure(e.message ?? '');
+    } catch (e) {
+      throw const ParseFailure();
+    }
   }
 
-  RecipeModel _parseResponse(Map<String, dynamic> responseData) {
-    // Extraer el texto de la respuesta de Gemini
-    final text = responseData['candidates'][0]['content']['parts'][0]['text'] as String;
-    
-    // Limpiar posibles backticks de markdown que Gemini a veces agrega
-    final cleanJson = text
-        .replaceAll('```json', '')
-        .replaceAll('```', '')
-        .trim();
+  RecipeModel _parseResponse(dynamic responseData) {
+    try {
+      final text =
+          responseData['choices'][0]['message']['content'] as String;
 
-    final jsonMap = jsonDecode(cleanJson) as Map<String, dynamic>;
-    return RecipeModel.fromJson(jsonMap);
+      final cleanJson = text
+          .replaceAll('```json', '')
+          .replaceAll('```', '')
+          .trim();
+
+      final jsonMap = jsonDecode(cleanJson) as Map<String, dynamic>;
+      return RecipeModel.fromJson(jsonMap);
+    } catch (_) {
+      throw const ParseFailure();
+    }
   }
 }
