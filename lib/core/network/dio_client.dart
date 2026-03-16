@@ -80,7 +80,7 @@ class DioClient {
   }
 
   AppFailure? _failureFromStatus(int? status) {
-    if (status == null) return UnknownFailure('Status code nulo');
+    if (status == null) return const UnknownFailure('Status code nulo');
     return switch (status) {
       >= 200 && < 300 => null,           // ✅ Éxito
       429             => const RateLimitFailure(),
