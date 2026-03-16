@@ -46,3 +46,16 @@ class UnknownFailure extends AppFailure {
           technicalDetail: detail,
         );
 }
+
+// ─── Auth failures ────────────────────────────────────────────────────────────
+
+class AuthFailure extends AppFailure {
+  const AuthFailure(super.message, {super.technicalDetail});
+}
+
+/// Thrown when the user cancels the Google Sign-In picker.
+/// AuthNotifier catches this and stays silent (no error state).
+class GoogleSignInCancelledFailure extends AppFailure {
+  const GoogleSignInCancelledFailure()
+      : super('', technicalDetail: 'user-cancelled');
+}

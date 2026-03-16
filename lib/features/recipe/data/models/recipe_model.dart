@@ -3,8 +3,10 @@ import '../../domain/entities/recipe_entity.dart';
 
 part 'recipe_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class RecipeModel {
+  @JsonKey(includeIfNull: false)
+  final String? id;
   final String name;
   final String description;
   final List<String> ingredients;
@@ -14,6 +16,7 @@ class RecipeModel {
   final String imagePrompt;
 
   const RecipeModel({
+    this.id,
     required this.name,
     required this.description,
     required this.ingredients,
@@ -26,8 +29,24 @@ class RecipeModel {
   factory RecipeModel.fromJson(Map<String, dynamic> json) =>
       _$RecipeModelFromJson(json);
 
+  // Expone la función generada para serializar a JSON (para escrituras en Firestore)
+  Map<String, dynamic> toJson() => _$RecipeModelToJson(this);
+
+  // Convertir Entity → Model (para escrituras en Firestore)
+  factory RecipeModel.fromEntity(RecipeEntity entity) => RecipeModel(
+        id: entity.id,
+        name: entity.name,
+        description: entity.description,
+        ingredients: entity.ingredients,
+        steps: entity.steps.map(RecipeStepModel.fromEntity).toList(),
+        estimatedTime: entity.estimatedTime,
+        difficulty: entity.difficulty,
+        imagePrompt: entity.imagePrompt,
+      );
+
   // Convertir Model → Entity (cruzar de data a domain)
   RecipeEntity toEntity() => RecipeEntity(
+        id: id,
         name: name,
         description: description,
         ingredients: ingredients,
@@ -52,6 +71,15 @@ class RecipeStepModel {
 
   factory RecipeStepModel.fromJson(Map<String, dynamic> json) =>
       _$RecipeStepModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RecipeStepModelToJson(this);
+
+  // Convertir RecipeStep Entity → Model (para escrituras en Firestore)
+  factory RecipeStepModel.fromEntity(RecipeStep step) => RecipeStepModel(
+        stepNumber: step.stepNumber,
+        instruction: step.instruction,
+        tip: step.tip,
+      );
 
   RecipeStep toEntity() => RecipeStep(
         stepNumber: stepNumber,

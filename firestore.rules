@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default: deny everything not explicitly matched
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // User-scoped recipe subcollection
+    match /users/{userId}/recipes/{recipeId} {
+      // Only the authenticated user whose UID matches the path segment can read their own recipes
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+
+      // Only the authenticated user can create a recipe in their own subcollection
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.keys().hasAll([
+                         'name', 'description', 'ingredients',
+                         'steps', 'estimatedTime', 'difficulty',
+                         'imagePrompt', 'savedAt'
+                       ])
+                    && request.resource.data.name is string
+                    && request.resource.data.ingredients is list
+                    && request.resource.data.steps is list;
+
+      // Only the authenticated user can delete their own recipes
+      allow delete: if request.auth != null
+                    && request.auth.uid == userId;
+
+      // Only the authenticated user can update their own recipes (used for writing back the `id` field)
+      allow update: if request.auth != null
+                    && request.auth.uid == userId;
+    }
+  }
+}

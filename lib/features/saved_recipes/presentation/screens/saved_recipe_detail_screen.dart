@@ -5,47 +5,16 @@ import 'package:go_router/go_router.dart';
 import 'package:moodfood_ai/core/constants/app_colors.dart';
 import '../../../../core/widgets/app_chip.dart';
 import '../../../../core/widgets/section_title.dart';
-import '../../domain/entities/recipe_entity.dart';
-import '../providers/recipe_provider.dart';
-import '../widgets/generated_dish_image.dart';
-import '../../../saved_recipes/presentation/providers/saved_recipes_provider.dart';
+import '../../../recipe/domain/entities/recipe_entity.dart';
+import '../../../recipe/presentation/widgets/generated_dish_image.dart';
 
-class RecipeScreen extends ConsumerStatefulWidget {
-  const RecipeScreen({super.key});
+class SavedRecipeDetailScreen extends ConsumerWidget {
+  final RecipeEntity recipe;
+
+  const SavedRecipeDetailScreen({super.key, required this.recipe});
 
   @override
-  ConsumerState<RecipeScreen> createState() => _RecipeScreenState();
-}
-
-class _RecipeScreenState extends ConsumerState<RecipeScreen> {
-  @override
-  Widget build(BuildContext context) {
-    ref.listen<SavedRecipesState>(savedRecipesProvider, (previous, next) {
-      if (next is SavedRecipesError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.message),
-            backgroundColor: Colors.red[700],
-          ),
-        );
-      }
-      if (next is SavedRecipesSaved) {
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          if (mounted) context.pop();
-        });
-      }
-    });
-
-    final state = ref.watch(recipeProvider);
-
-    if (state is! RecipeSuccess) return const SizedBox.shrink();
-
-    final recipe = state.recipe;
-    final savedState = ref.watch(savedRecipesProvider);
-
-    final isSaving = savedState is SavedRecipesSaving;
-    final isSaved = savedState is SavedRecipesSaved;
-
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -84,7 +53,6 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
 
                 const SizedBox(height: 16),
 
-                // Descripción
                 Text(
                   recipe.description,
                   style: TextStyle(
@@ -122,6 +90,7 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                 const SectionTitle('Preparación'),
 
                 const SizedBox(height: 16),
+
                 ...recipe.steps.map(
                   (step) => _StepCard(step: step)
                       .animate()
@@ -132,17 +101,6 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                 ),
 
                 const SizedBox(height: 24),
-
-                // ── Guardar receta button ──────────────────────────────────
-                _SaveRecipeButton(
-                  isSaving: isSaving,
-                  isSaved: isSaved,
-                  onSave: () => ref
-                      .read(savedRecipesProvider.notifier)
-                      .saveRecipe(recipe),
-                ).animate().fadeIn(delay: 300.ms),
-
-                const SizedBox(height: 16),
               ]),
             ),
           ),
@@ -152,63 +110,7 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
   }
 }
 
-// ── Save button widget ─────────────────────────────────────────────────────────
-
-class _SaveRecipeButton extends StatelessWidget {
-  final bool isSaving;
-  final bool isSaved;
-  final VoidCallback onSave;
-
-  const _SaveRecipeButton({
-    required this.isSaving,
-    required this.isSaved,
-    required this.onSave,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDisabled = isSaving || isSaved;
-
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton.icon(
-        onPressed: isDisabled ? null : onSave,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isSaved ? Colors.green[600] : AppColors.primary,
-          disabledBackgroundColor:
-              isSaved ? Colors.green[600] : AppColors.primary.withValues(alpha: 0.6),
-          foregroundColor: Colors.white,
-          disabledForegroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        icon: isSaving
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Icon(isSaved ? Icons.bookmark : Icons.bookmark_outline),
-        label: Text(
-          isSaving
-              ? 'Guardando...'
-              : isSaved
-                  ? '¡Guardada! ✓'
-                  : 'Guardar receta',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-}
+// ── Step card widget ───────────────────────────────────────────────────────────
 
 class _StepCard extends StatelessWidget {
   final RecipeStep step;
@@ -245,9 +147,9 @@ class _StepCard extends StatelessWidget {
               child: Text(
                 '${step.stepNumber}',
                 style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
             ),
@@ -257,18 +159,25 @@ class _StepCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(step.instruction, style: const TextStyle(height: 1, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                  step.instruction,
+                  style: const TextStyle(
+                    height: 1,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
                 if (step.tip != null) ...[
                   const SizedBox(height: 8),
                   Text(
                     '${step.tip}',
                     style: TextStyle(
-                        color: Colors.amber[700],
-                        fontSize: 14,
-                        fontStyle: FontStyle.italic,
+                      color: Colors.amber[700],
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
-                ]
+                ],
               ],
             ),
           ),

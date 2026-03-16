@@ -16,6 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$RecipeEntity {
+  String? get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   List<String> get ingredients => throw _privateConstructorUsedError;
@@ -36,7 +37,8 @@ abstract class $RecipeEntityCopyWith<$Res> {
       _$RecipeEntityCopyWithImpl<$Res, RecipeEntity>;
   @useResult
   $Res call(
-      {String name,
+      {String? id,
+      String name,
       String description,
       List<String> ingredients,
       List<RecipeStep> steps,
@@ -58,6 +60,7 @@ class _$RecipeEntityCopyWithImpl<$Res, $Val extends RecipeEntity>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = freezed,
     Object? name = null,
     Object? description = null,
     Object? ingredients = null,
@@ -67,6 +70,10 @@ class _$RecipeEntityCopyWithImpl<$Res, $Val extends RecipeEntity>
     Object? imagePrompt = null,
   }) {
     return _then(_value.copyWith(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -108,7 +115,8 @@ abstract class _$$RecipeEntityImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String name,
+      {String? id,
+      String name,
       String description,
       List<String> ingredients,
       List<RecipeStep> steps,
@@ -128,6 +136,7 @@ class __$$RecipeEntityImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = freezed,
     Object? name = null,
     Object? description = null,
     Object? ingredients = null,
@@ -137,6 +146,10 @@ class __$$RecipeEntityImplCopyWithImpl<$Res>
     Object? imagePrompt = null,
   }) {
     return _then(_$RecipeEntityImpl(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -173,7 +186,8 @@ class __$$RecipeEntityImplCopyWithImpl<$Res>
 
 class _$RecipeEntityImpl implements _RecipeEntity {
   const _$RecipeEntityImpl(
-      {required this.name,
+      {this.id,
+      required this.name,
       required this.description,
       required final List<String> ingredients,
       required final List<RecipeStep> steps,
@@ -183,6 +197,8 @@ class _$RecipeEntityImpl implements _RecipeEntity {
       : _ingredients = ingredients,
         _steps = steps;
 
+  @override
+  final String? id;
   @override
   final String name;
   @override
@@ -212,7 +228,7 @@ class _$RecipeEntityImpl implements _RecipeEntity {
 
   @override
   String toString() {
-    return 'RecipeEntity(name: $name, description: $description, ingredients: $ingredients, steps: $steps, estimatedTime: $estimatedTime, difficulty: $difficulty, imagePrompt: $imagePrompt)';
+    return 'RecipeEntity(id: $id, name: $name, description: $description, ingredients: $ingredients, steps: $steps, estimatedTime: $estimatedTime, difficulty: $difficulty, imagePrompt: $imagePrompt)';
   }
 
   @override
@@ -220,6 +236,7 @@ class _$RecipeEntityImpl implements _RecipeEntity {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$RecipeEntityImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.description, description) ||
                 other.description == description) &&
@@ -237,6 +254,7 @@ class _$RecipeEntityImpl implements _RecipeEntity {
   @override
   int get hashCode => Object.hash(
       runtimeType,
+      id,
       name,
       description,
       const DeepCollectionEquality().hash(_ingredients),
@@ -254,7 +272,8 @@ class _$RecipeEntityImpl implements _RecipeEntity {
 
 abstract class _RecipeEntity implements RecipeEntity {
   const factory _RecipeEntity(
-      {required final String name,
+      {final String? id,
+      required final String name,
       required final String description,
       required final List<String> ingredients,
       required final List<RecipeStep> steps,
@@ -262,6 +281,8 @@ abstract class _RecipeEntity implements RecipeEntity {
       required final String difficulty,
       required final String imagePrompt}) = _$RecipeEntityImpl;
 
+  @override
+  String? get id;
   @override
   String get name;
   @override

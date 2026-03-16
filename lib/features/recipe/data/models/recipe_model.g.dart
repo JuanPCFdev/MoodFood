@@ -7,6 +7,7 @@ part of 'recipe_model.dart';
 // **************************************************************************
 
 RecipeModel _$RecipeModelFromJson(Map<String, dynamic> json) => RecipeModel(
+      id: json['id'] as String?,
       name: json['name'] as String,
       description: json['description'] as String,
       ingredients: (json['ingredients'] as List<dynamic>)
@@ -20,16 +21,25 @@ RecipeModel _$RecipeModelFromJson(Map<String, dynamic> json) => RecipeModel(
       imagePrompt: json['imagePrompt'] as String,
     );
 
-Map<String, dynamic> _$RecipeModelToJson(RecipeModel instance) =>
-    <String, dynamic>{
-      'name': instance.name,
-      'description': instance.description,
-      'ingredients': instance.ingredients,
-      'steps': instance.steps,
-      'estimatedTime': instance.estimatedTime,
-      'difficulty': instance.difficulty,
-      'imagePrompt': instance.imagePrompt,
-    };
+Map<String, dynamic> _$RecipeModelToJson(RecipeModel instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('id', instance.id);
+  val['name'] = instance.name;
+  val['description'] = instance.description;
+  val['ingredients'] = instance.ingredients;
+  val['steps'] = instance.steps.map((e) => e.toJson()).toList();
+  val['estimatedTime'] = instance.estimatedTime;
+  val['difficulty'] = instance.difficulty;
+  val['imagePrompt'] = instance.imagePrompt;
+  return val;
+}
 
 RecipeStepModel _$RecipeStepModelFromJson(Map<String, dynamic> json) =>
     RecipeStepModel(

@@ -1,1 +1,29 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"mood-food-project","appId":"1:711869316490:android:4064f3bfb2acfc7ec15c73","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"mood-food-project","configurations":{"android":"1:711869316490:android:4064f3bfb2acfc7ec15c73","ios":"1:711869316490:ios:7d16c928697de987c15c73","macos":"1:711869316490:ios:7d16c928697de987c15c73","web":"1:711869316490:web:df49afc99502a233c15c73","windows":"1:711869316490:web:a93aa5531c7254f2c15c73"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "mood-food-project",
+          "appId": "1:711869316490:android:4064f3bfb2acfc7ec15c73",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "mood-food-project",
+          "configurations": {
+            "android": "1:711869316490:android:4064f3bfb2acfc7ec15c73",
+            "ios": "1:711869316490:ios:7d16c928697de987c15c73",
+            "macos": "1:711869316490:ios:7d16c928697de987c15c73",
+            "web": "1:711869316490:web:df49afc99502a233c15c73",
+            "windows": "1:711869316490:web:a93aa5531c7254f2c15c73"
+          }
+        }
+      }
+    }
+  }
+}

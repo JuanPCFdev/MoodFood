@@ -5,6 +5,7 @@ part 'recipe_entity.freezed.dart';
 @freezed
 class RecipeEntity with _$RecipeEntity {
   const factory RecipeEntity({
+    String? id,
     required String name,
     required String description,
     required List<String> ingredients,
